@@ -131,6 +131,20 @@ const DIVISION_THEMES: Record<string, DivisionVisualTheme> = {
       gradient: 'from-sky-500 to-blue-600',
     },
   },
+  'kesehatan': {
+    shortName: 'Kesehatan',
+    roleTitle: 'Koordinator Layanan Kesehatan, UKS & Sanitasi Lingkungan',
+    leadName: 'dr. H. Rahmat Hidayat / Tim Medis Yayasan',
+    iconName: 'HeartPulse',
+    colorScheme: {
+      primary: '#14b8a6',
+      bgLight: 'rgba(20, 184, 166, 0.12)',
+      badgeBg: 'rgba(20, 184, 166, 0.22)',
+      border: 'rgba(20, 184, 166, 0.35)',
+      text: '#5eead4',
+      gradient: 'from-teal-600 to-emerald-500',
+    },
+  },
 };
 
 // Aliases for legacy short slugs
@@ -140,6 +154,7 @@ DIVISION_THEMES['sarpras'] = DIVISION_THEMES['sarana-prasarana'];
 DIVISION_THEMES['bilingual'] = DIVISION_THEMES['tim-bilingual'];
 DIVISION_THEMES['media'] = DIVISION_THEMES['tim-media'];
 DIVISION_THEMES['it'] = DIVISION_THEMES['tim-it'];
+DIVISION_THEMES['tim-kesehatan'] = DIVISION_THEMES['kesehatan'];
 
 /**
  * Convert ISO date string to DayOfWeek in Indonesian

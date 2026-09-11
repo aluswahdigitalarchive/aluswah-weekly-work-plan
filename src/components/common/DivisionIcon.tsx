@@ -12,6 +12,7 @@ import {
   Presentation,
   Calendar,
   Layers,
+  HeartPulse,
   LucideProps,
 } from 'lucide-react';
 
@@ -43,6 +44,8 @@ export const DivisionIcon: React.FC<DivisionIconProps> = ({ name, ...props }) =>
       return <Presentation {...props} />;
     case 'Calendar':
       return <Calendar {...props} />;
+    case 'HeartPulse':
+      return <HeartPulse {...props} />;
     default:
       return <Layers {...props} />;
   }

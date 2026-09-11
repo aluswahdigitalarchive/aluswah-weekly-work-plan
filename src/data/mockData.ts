@@ -1042,6 +1042,32 @@ export const divisionsData: Division[] = [
     priorityHighlight: 'Upgrade bandwidth failover fiber optic dan backup disaster recovery database akademik.',
     agendas: [],
   },
+  {
+    id: 'kesehatan',
+    slug: 'kesehatan',
+    name: 'Divisi Kesehatan',
+    shortName: 'Kesehatan',
+    roleTitle: 'Koordinator Layanan Kesehatan, UKS & Sanitasi Lingkungan',
+    leadName: 'dr. H. Rahmat Hidayat / Tim Medis',
+    iconName: 'HeartPulse',
+    colorScheme: {
+      primary: '#14b8a6',
+      bgLight: 'rgba(20, 184, 166, 0.12)',
+      badgeBg: 'rgba(20, 184, 166, 0.22)',
+      border: 'rgba(20, 184, 166, 0.35)',
+      text: '#5eead4',
+      gradient: 'from-teal-600 to-emerald-500',
+    },
+    progress: 0,
+    description: 'Pelayanan kesehatan siswa, pemeriksaan berkala UKS, pencegahan penyakit menular, dan standarisasi higienitas lingkungan yayasan.',
+    totalAgenda: 0,
+    completedAgenda: 0,
+    inProgressAgenda: 0,
+    delayedAgenda: 0,
+    pendingAgenda: 0,
+    priorityHighlight: 'Pemeriksaan kesehatan berkala dan kesiapan posko pertolongan pertama santri.',
+    agendas: [],
+  },
 ];
 
 export const weeklyPriorities: import('../types').PriorityItem[] = [
