@@ -145,10 +145,64 @@ DIVISION_THEMES['it'] = DIVISION_THEMES['tim-it'];
  * Convert ISO date string to DayOfWeek in Indonesian
  */
 export function getDayOfWeekFromDate(dateStr: string): DayOfWeek {
-  const date = new Date(dateStr + 'T00:00:00');
-  const dayIndex = date.getDay(); // 0 = Minggu, 1 = Senin, ...
-  const days: DayOfWeek[] = ['Senin', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-  return days[dayIndex] || 'Senin';
+  const parts = dateStr.split('-');
+  if (parts.length === 3) {
+    const date = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+    const dayIndex = date.getDay(); // 0 = Minggu, 1 = Senin, 2 = Selasa, 3 = Rabu, 4 = Kamis, 5 = Jumat, 6 = Sabtu
+    const days: DayOfWeek[] = ['Senin', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    return days[dayIndex] || 'Senin';
+  }
+  return 'Senin';
+}
+
+/**
+ * Calculate ISO date string (YYYY-MM-DD) given weekStart (Monday) and DayOfWeek
+ */
+export function calculateDateFromWeekAndDay(weekStart: string, targetDay: DayOfWeek): string {
+  const dayOffsets: Record<DayOfWeek, number> = {
+    Senin: 0,
+    Selasa: 1,
+    Rabu: 2,
+    Kamis: 3,
+    Jumat: 4,
+    Sabtu: 5,
+  };
+  const offset = dayOffsets[targetDay] ?? 0;
+  const parts = weekStart.split('-');
+  if (parts.length === 3) {
+    const base = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+    base.setDate(base.getDate() + offset);
+    const year = base.getFullYear();
+    const month = String(base.getMonth() + 1).padStart(2, '0');
+    const day = String(base.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  return weekStart;
+}
+
+/**
+ * Parse time string like '09:00 - 11:00' into start_time and end_time (HH:MM:SS)
+ */
+export function parseTimeRange(timeStr?: string): { startTime: string; endTime: string | null } {
+  if (!timeStr || !timeStr.trim()) {
+    return { startTime: '09:00:00', endTime: '11:00:00' };
+  }
+  const parts = timeStr.split('-').map((s) => s.trim());
+  const formatTime = (t: string) => {
+    const clean = t.replace('.', ':');
+    const sub = clean.split(':');
+    if (sub.length === 2) {
+      return `${sub[0].padStart(2, '0')}:${sub[1].padStart(2, '0')}:00`;
+    }
+    if (sub.length === 3) {
+      return `${sub[0].padStart(2, '0')}:${sub[1].padStart(2, '0')}:${sub[2].padStart(2, '0')}`;
+    }
+    return '09:00:00';
+  };
+
+  const startTime = formatTime(parts[0]);
+  const endTime = parts.length > 1 && parts[1] ? formatTime(parts[1]) : null;
+  return { startTime, endTime };
 }
 
 /**

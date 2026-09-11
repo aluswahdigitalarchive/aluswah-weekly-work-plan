@@ -32,6 +32,8 @@ import {
   mapTaskRowToAgendaItem,
   mapWeeklyPlanRowToWeekInfo,
   mapDivisionRowToBaseDivision,
+  calculateDateFromWeekAndDay,
+  parseTimeRange,
 } from '../services/mappers';
 import { DivisionRow, WeeklyPlanRow, TaskRow, AppSettingRow } from '../lib/supabase';
 import { useAuth } from './AuthContext';
@@ -492,10 +494,18 @@ export const AgendaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         _allPlansRows.find((p) => p.week_number === agendaData.weekNumber) ||
         activePlanRow;
 
+      const baseWeekStart = targetPlan?.week_start || activePlanRow?.week_start || '2026-09-07';
+      const targetDay = agendaData.day || target.day || 'Senin';
+      const calculatedDate = calculateDateFromWeekAndDay(baseWeekStart, targetDay);
+      const { startTime, endTime } = parseTimeRange(agendaData.time);
+
       const updatedRow = await updateTask(agendaData.id, {
         title: agendaData.title,
         status: dbStatus,
         priority: dbPriority,
+        date: calculatedDate,
+        start_time: startTime,
+        end_time: endTime,
         pic: agendaData.pic || null,
         location: agendaData.location || null,
         notes: agendaData.notes || null,
@@ -504,17 +514,14 @@ export const AgendaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       });
 
       if (updatedRow) {
+        const mappedUpdated = mapTaskRowToAgendaItem(
+          updatedRow,
+          divisionName,
+          targetPlan ? targetPlan.week_number : target.weekNumber
+        );
+
         setAgendas((prev) =>
-          prev.map((item) =>
-            item.id === agendaData.id
-              ? {
-                  ...item,
-                  ...agendaData,
-                  weekNumber: targetPlan ? targetPlan.week_number : item.weekNumber,
-                  divisionName,
-                }
-              : item
-          )
+          prev.map((item) => (item.id === agendaData.id ? mappedUpdated : item))
         );
       }
     } else {
@@ -527,15 +534,18 @@ export const AgendaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         throw new Error('Tidak dapat membuat task: ID weekly plan tidak ditemukan.');
       }
 
-      const taskDate = targetPlan.week_start || new Date().toISOString().slice(0, 10);
+      const baseWeekStart = targetPlan.week_start || new Date().toISOString().slice(0, 10);
+      const targetDay = agendaData.day || 'Senin';
+      const taskDate = calculateDateFromWeekAndDay(baseWeekStart, targetDay);
+      const { startTime, endTime } = parseTimeRange(agendaData.time);
 
       const createdRow = await createTask({
         weekly_plan_id: targetWeeklyPlanId,
         division_id: agendaData.divisionId,
         title: agendaData.title,
         date: taskDate,
-        start_time: '09:00:00',
-        end_time: '11:00:00',
+        start_time: startTime,
+        end_time: endTime,
         status: dbStatus,
         priority: dbPriority,
         progress: dbStatus === 'COMPLETED' ? 100 : 0,
