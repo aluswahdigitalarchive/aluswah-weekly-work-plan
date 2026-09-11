@@ -1045,7 +1045,7 @@ export const divisionsData: Division[] = [
   {
     id: 'kesehatan',
     slug: 'kesehatan',
-    name: 'Divisi Kesehatan',
+    name: 'Unit Kesehatan',
     shortName: 'Kesehatan',
     roleTitle: 'Koordinator Layanan Kesehatan, UKS & Sanitasi Lingkungan',
     leadName: 'dr. H. Rahmat Hidayat / Tim Medis',

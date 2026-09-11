@@ -205,6 +205,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
               >
                 Qur'an
               </button>
+              <button
+                type="button"
+                onClick={() => handleQuickFill('kesehatan@aluswah.id')}
+                className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-teal-300 font-semibold border border-teal-500/30 transition-colors"
+              >
+                Kesehatan
+              </button>
             </div>
             <p className="text-[10px] text-slate-500 text-center mt-2.5">
               Password default semua akun: <code className="text-slate-400">Aluswah2026!</code>

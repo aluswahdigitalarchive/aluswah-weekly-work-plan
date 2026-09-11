@@ -155,6 +155,7 @@ DIVISION_THEMES['bilingual'] = DIVISION_THEMES['tim-bilingual'];
 DIVISION_THEMES['media'] = DIVISION_THEMES['tim-media'];
 DIVISION_THEMES['it'] = DIVISION_THEMES['tim-it'];
 DIVISION_THEMES['tim-kesehatan'] = DIVISION_THEMES['kesehatan'];
+DIVISION_THEMES['unit-kesehatan'] = DIVISION_THEMES['kesehatan'];
 
 /**
  * Convert ISO date string to DayOfWeek in Indonesian
