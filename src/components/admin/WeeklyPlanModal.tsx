@@ -33,7 +33,7 @@ export const WeeklyPlanModal: React.FC<WeeklyPlanModalProps> = ({ isOpen, onClos
       setYear(2026);
       setTitle(`Rencana Kerja Pekan ${nextWeek}`);
 
-      // Auto-suggest next Monday & Saturday based on current date or previous week
+      // Auto-suggest next Monday & Sunday based on current date or previous week
       const now = new Date();
       // Calculate next Monday
       const day = now.getDay();
@@ -41,12 +41,12 @@ export const WeeklyPlanModal: React.FC<WeeklyPlanModalProps> = ({ isOpen, onClos
       const nextMon = new Date(now);
       nextMon.setDate(now.getDate() + diffToMonday);
 
-      const nextSat = new Date(nextMon);
-      nextSat.setDate(nextMon.getDate() + 5);
+      const nextSun = new Date(nextMon);
+      nextSun.setDate(nextMon.getDate() + 6);
 
       const formatIso = (d: Date) => d.toISOString().slice(0, 10);
       setWeekStart(formatIso(nextMon));
-      setWeekEnd(formatIso(nextSat));
+      setWeekEnd(formatIso(nextSun));
       setIsActive(false);
     }
   }, [isOpen, availableWeeks]);
@@ -200,7 +200,7 @@ export const WeeklyPlanModal: React.FC<WeeklyPlanModalProps> = ({ isOpen, onClos
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center gap-1.5">
                 <Calendar size={13} className="text-tealbrand-400" />
-                <span>Tanggal Selesai (Sabtu)</span>
+                <span>Tanggal Selesai (Minggu)</span>
               </label>
               <input
                 type="date"

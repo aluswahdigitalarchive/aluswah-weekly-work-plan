@@ -752,7 +752,7 @@ export const AgendaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return activeWeekAgendas.filter((a) => a.day === todayName);
   }, [activeWeekAgendas]);
 
-  // Day Agenda Distribution (MON - SAT)
+  // Day Agenda Distribution (MON - SUN)
   const dayAgendaCounts = useMemo(() => {
     const days = [
       { day: 'MON', fullDay: 'Senin', date: '7 Sep' },
@@ -761,6 +761,7 @@ export const AgendaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       { day: 'THU', fullDay: 'Kamis', date: '10 Sep' },
       { day: 'FRI', fullDay: 'Jumat', date: '11 Sep' },
       { day: 'SAT', fullDay: 'Sabtu', date: '12 Sep' },
+      { day: 'SUN', fullDay: 'Minggu', date: '13 Sep' },
     ];
 
     return days.map((d) => {

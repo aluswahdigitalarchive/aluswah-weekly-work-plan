@@ -1,6 +1,6 @@
 export type AgendaStatus = 'completed' | 'in-progress' | 'not-started' | 'delayed';
 export type PriorityLevel = 'high' | 'medium' | 'low';
-export type DayOfWeek = 'Senin' | 'Selasa' | 'Rabu' | 'Kamis' | 'Jumat' | 'Sabtu';
+export type DayOfWeek = 'Senin' | 'Selasa' | 'Rabu' | 'Kamis' | 'Jumat' | 'Sabtu' | 'Minggu';
 
 export interface DivisionColorScheme {
   primary: string;

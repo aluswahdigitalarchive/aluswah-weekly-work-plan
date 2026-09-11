@@ -55,7 +55,7 @@ export const DivisionOverview: React.FC<DivisionOverviewProps> = ({
   const nextDivision =
     currentIndex < allDivisions.length - 1 ? allDivisions[currentIndex + 1] : null;
 
-  const days: DayOfWeek[] = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+  const days: DayOfWeek[] = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
 
   const filteredAgendas =
     selectedDayFilter === 'all'
@@ -315,7 +315,7 @@ export const DivisionOverview: React.FC<DivisionOverviewProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div>
             <h2 className="text-base sm:text-xl font-black text-white">
-              Rencana Kerja Harian (Senin – Sabtu)
+              Rencana Kerja Harian (Senin – Minggu)
             </h2>
             <p className="text-xs text-slate-400 mt-0.5 font-medium">
               Centang ceklis jika kegiatan sudah berlangsung untuk menaikkan progres divisi

@@ -18,7 +18,7 @@ export const WeeklyTimeline: React.FC = () => {
             </span>
           </div>
           <p className="text-xs text-slate-400 mt-0.5 font-medium">
-            Sebaran beban kerja dan agenda kegiatan harian (Senin — Sabtu)
+            Sebaran beban kerja dan agenda kegiatan harian (Senin — Minggu)
           </p>
         </div>
 
@@ -34,8 +34,8 @@ export const WeeklyTimeline: React.FC = () => {
         </div>
       </div>
 
-      {/* Grid of days: MON, TUE, WED, THU, FRI, SAT */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+      {/* Grid of days: MON, TUE, WED, THU, FRI, SAT, SUN */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4">
         {dayAgendaCounts.map((d) => {
           const isToday = d.day === currentDayName && activeWeek.weekNumber === 37;
 

@@ -211,7 +211,7 @@ export const AgendaFormModal: React.FC = () => {
                 }
                 className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#0e1626] text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500"
               >
-                {['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'].map((day) => (
+                {['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'].map((day) => (
                   <option key={day} value={day} className="bg-[#131b2e] text-white">
                     {day}
                   </option>

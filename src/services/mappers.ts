@@ -165,7 +165,7 @@ export function getDayOfWeekFromDate(dateStr: string): DayOfWeek {
   if (parts.length === 3) {
     const date = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
     const dayIndex = date.getDay(); // 0 = Minggu, 1 = Senin, 2 = Selasa, 3 = Rabu, 4 = Kamis, 5 = Jumat, 6 = Sabtu
-    const days: DayOfWeek[] = ['Senin', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const days: DayOfWeek[] = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
     return days[dayIndex] || 'Senin';
   }
   return 'Senin';
@@ -182,6 +182,7 @@ export function calculateDateFromWeekAndDay(weekStart: string, targetDay: DayOfW
     Kamis: 3,
     Jumat: 4,
     Sabtu: 5,
+    Minggu: 6,
   };
   const offset = dayOffsets[targetDay] ?? 0;
   const parts = weekStart.split('-');

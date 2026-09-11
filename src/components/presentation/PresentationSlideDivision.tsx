@@ -1,5 +1,5 @@
 import React from 'react';
-import { Division, WeekInfo } from '../../types';
+import { Division, WeekInfo, DayOfWeek } from '../../types';
 import { DivisionIcon } from '../common/DivisionIcon';
 import { StatusBadge } from '../common/StatusBadge';
 import { useAgenda } from '../../context/AgendaContext';
@@ -55,14 +55,15 @@ export const PresentationSlideDivision: React.FC<PresentationSlideDivisionProps>
       Kamis: 4,
       Jumat: 5,
       Sabtu: 6,
+      Minggu: 7,
     };
 
     return selected.sort((a, b) => (dayOrder[a.day] || 0) - (dayOrder[b.day] || 0));
   })();
 
   // Determine current day of week (e.g. 'Selasa')
-  const dayNames: ('Senin' | 'Selasa' | 'Rabu' | 'Kamis' | 'Jumat' | 'Sabtu')[] = [
-    'Senin', // 0
+  const dayNames: DayOfWeek[] = [
+    'Minggu', // 0
     'Senin', // 1
     'Selasa', // 2
     'Rabu', // 3
@@ -398,8 +399,8 @@ export const PresentationSlideDivision: React.FC<PresentationSlideDivisionProps>
             <span className="text-xs font-black uppercase tracking-wider text-slate-400 block mb-3">
               Jadwal Hari Pekan Ini
             </span>
-            <div className="grid grid-cols-3 gap-2 text-center">
-              {['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'].map((day) => {
+            <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5 text-center">
+              {['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'].map((day) => {
                 const count = division.agendas.filter((a) => a.day === day).length;
                 const isDayToday = isCurrentWeek && day === currentDayOfWeek;
 
