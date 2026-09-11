@@ -27,7 +27,7 @@ import {
   updateTask,
   deleteTask,
 } from '../services/tasks';
-import { getAppSetting } from '../services/appSettings';
+import { getAppSetting, setAppSetting } from '../services/appSettings';
 import {
   mapTaskRowToAgendaItem,
   mapWeeklyPlanRowToWeekInfo,
@@ -102,6 +102,8 @@ interface AgendaContextType {
   priorities: PriorityItem[];
   activePriorities: PriorityItem[];
   addPriorityFromAgenda: (agenda: AgendaItem) => void;
+  setDivisionPriorityFromAgenda: (agenda: AgendaItem) => Promise<void>;
+  removeDivisionPriority: (divisionId: string, weekNumber?: number) => Promise<void>;
   addCustomPriority: (priorityData: Omit<PriorityItem, 'id'>) => void;
   removePriority: (priorityId: string) => void;
   clearWeekPriorities: () => void;
@@ -205,11 +207,12 @@ export const AgendaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     try {
       // Step A: Fetch active weekly plan, all weekly plans, divisions, app settings, and all tasks in parallel
-      const [activePlan, allPlans, rawDivisions, intervalSetting, allTaskRows] = await Promise.all([
+      const [activePlan, allPlans, rawDivisions, intervalSetting, prioritiesSetting, allTaskRows] = await Promise.all([
         getActiveWeeklyPlan(),
         getWeeklyPlans(),
         getDivisions(),
         getAppSetting('presentation_interval'),
+        getAppSetting('weekly_priorities'),
         getAllTasks(),
       ]);
 
@@ -225,6 +228,17 @@ export const AgendaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         const parsed = parseInt(intervalSetting, 10);
         if (!isNaN(parsed) && parsed > 0) {
           setPresentationInterval(parsed);
+        }
+      }
+
+      if (prioritiesSetting) {
+        try {
+          const parsed = JSON.parse(prioritiesSetting);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setPriorities(parsed);
+          }
+        } catch (e) {
+          console.warn('Gagal memuat weekly_priorities dari database:', e);
         }
       }
 
@@ -367,6 +381,16 @@ export const AgendaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       const parsed = parseInt(settingRow.value || '10', 10);
       if (!isNaN(parsed) && parsed > 0) {
         setPresentationInterval(parsed);
+      }
+    } else if (settingRow.key === 'weekly_priorities') {
+      try {
+        const parsed = JSON.parse(settingRow.value || '[]');
+        if (Array.isArray(parsed)) {
+          setPriorities(parsed);
+          localStorage.setItem(LOCAL_STORAGE_KEY_PRIORITIES, JSON.stringify(parsed));
+        }
+      } catch (e) {
+        console.error('Failed to parse realtime weekly_priorities:', e);
       }
     }
   }, []);
@@ -652,6 +676,59 @@ export const AgendaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   // 12. Priorities Management
+  const persistPriorities = useCallback(async (newPriorities: PriorityItem[]) => {
+    setPriorities(newPriorities);
+    localStorage.setItem(LOCAL_STORAGE_KEY_PRIORITIES, JSON.stringify(newPriorities));
+    try {
+      await setAppSetting('weekly_priorities', JSON.stringify(newPriorities));
+    } catch (e) {
+      console.warn('Gagal sinkronisasi prioritas ke Supabase:', e);
+    }
+  }, []);
+
+  const setDivisionPriorityFromAgenda = useCallback(
+    async (agenda: AgendaItem) => {
+      // Filter out existing priority for this division in the target week
+      const filtered = priorities.filter(
+        (p) =>
+          !(
+            p.weekNumber === agenda.weekNumber &&
+            (p.divisionId === agenda.divisionId || p.division === agenda.divisionName)
+          )
+      );
+
+      const newPriority: PriorityItem = {
+        id: `p-${agenda.id}-${Date.now()}`,
+        weekNumber: agenda.weekNumber,
+        level: agenda.priority,
+        title: agenda.title,
+        division: agenda.divisionName,
+        divisionId: agenda.divisionId,
+        target: `${agenda.day}, ${agenda.date}`,
+        progress: agenda.status === 'completed' ? 100 : agenda.status === 'in-progress' ? 50 : 0,
+        sourceAgendaId: agenda.id,
+      };
+
+      await persistPriorities([newPriority, ...filtered]);
+    },
+    [priorities, persistPriorities]
+  );
+
+  const removeDivisionPriority = useCallback(
+    async (divisionId: string, weekNumber?: number) => {
+      const targetWeek = weekNumber ?? activeWeek.weekNumber;
+      const updated = priorities.filter(
+        (p) =>
+          !(
+            p.weekNumber === targetWeek &&
+            (p.divisionId === divisionId)
+          )
+      );
+      await persistPriorities(updated);
+    },
+    [priorities, activeWeek.weekNumber, persistPriorities]
+  );
+
   const addPriorityFromAgenda = (agenda: AgendaItem) => {
     const existing = priorities.find((p) => p.sourceAgendaId === agenda.id);
     if (existing) return;
@@ -668,7 +745,7 @@ export const AgendaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       sourceAgendaId: agenda.id,
     };
 
-    setPriorities((prev) => [newPriority, ...prev]);
+    void persistPriorities([newPriority, ...priorities]);
   };
 
   const addCustomPriority = (priorityData: Omit<PriorityItem, 'id'>) => {
@@ -676,15 +753,17 @@ export const AgendaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       id: `cp-${Date.now()}`,
       ...priorityData,
     };
-    setPriorities((prev) => [newPriority, ...prev]);
+    void persistPriorities([newPriority, ...priorities]);
   };
 
   const removePriority = (priorityId: string) => {
-    setPriorities((prev) => prev.filter((p) => p.id !== priorityId));
+    const updated = priorities.filter((p) => p.id !== priorityId);
+    void persistPriorities(updated);
   };
 
   const clearWeekPriorities = () => {
-    setPriorities((prev) => prev.filter((p) => p.weekNumber !== activeWeek.weekNumber));
+    const updated = priorities.filter((p) => p.weekNumber !== activeWeek.weekNumber);
+    void persistPriorities(updated);
   };
 
   const activePriorities = useMemo(() => {
@@ -793,6 +872,8 @@ export const AgendaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         priorities,
         activePriorities,
         addPriorityFromAgenda,
+        setDivisionPriorityFromAgenda,
+        removeDivisionPriority,
         addCustomPriority,
         removePriority,
         clearWeekPriorities,

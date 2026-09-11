@@ -38,3 +38,17 @@ export async function getAppSetting(key: string): Promise<string | null> {
 
   return data ? data.value : null;
 }
+
+/**
+ * Set or upsert an app setting by key
+ */
+export async function setAppSetting(key: string, value: string): Promise<void> {
+  const { error } = await supabase
+    .from('app_settings')
+    .upsert({ key, value }, { onConflict: 'key' });
+
+  if (error) {
+    console.error(`Error saving setting ${key}:`, error.message);
+    throw error;
+  }
+}

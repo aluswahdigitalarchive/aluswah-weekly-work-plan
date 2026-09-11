@@ -14,9 +14,13 @@ import {
   Presentation,
   Plus,
   Edit3,
+  Star,
+  Trash2,
+  Sparkles,
 } from 'lucide-react';
 import { useAgenda } from '../../context/AgendaContext';
 import { EditDivisionModal } from '../admin/EditDivisionModal';
+import { SelectDivisionPriorityModal } from './SelectDivisionPriorityModal';
 
 interface DivisionOverviewProps {
   division: Division;
@@ -40,6 +44,8 @@ export const DivisionOverview: React.FC<DivisionOverviewProps> = ({
     openEditModal,
     activePriorities,
     openPriorityModal,
+    setDivisionPriorityFromAgenda,
+    removeDivisionPriority,
   } = useAgenda();
 
   const allDivisions = getDivisionsForActiveWeek();
@@ -49,6 +55,7 @@ export const DivisionOverview: React.FC<DivisionOverviewProps> = ({
 
   const [selectedDayFilter, setSelectedDayFilter] = useState<string>('all');
   const [isEditDivisionModalOpen, setIsEditDivisionModalOpen] = useState<boolean>(false);
+  const [isSelectPriorityModalOpen, setIsSelectPriorityModalOpen] = useState<boolean>(false);
 
   const currentIndex = allDivisions.findIndex((d) => d.id === division.id);
   const prevDivision = currentIndex > 0 ? allDivisions[currentIndex - 1] : null;
@@ -240,11 +247,34 @@ export const DivisionOverview: React.FC<DivisionOverviewProps> = ({
                     {divisionPriorities.map((p) => p.title).join(' • ')}
                   </p>
                 </div>
-                {divisionPriorities[0].target && (
-                  <span className="text-[10px] font-semibold text-amber-300/80 mt-2 block">
-                    Target: {divisionPriorities[0].target}
-                  </span>
-                )}
+                <div>
+                  {divisionPriorities[0].target && (
+                    <span className="text-[10px] font-semibold text-amber-300/80 mt-1.5 block">
+                      Target: {divisionPriorities[0].target}
+                    </span>
+                  )}
+                  {(isSuperAdmin || canManageDivision(currentDiv.id)) && (
+                    <div className="flex items-center gap-2 mt-2.5 pt-2 border-t border-amber-500/20">
+                      <button
+                        type="button"
+                        onClick={() => setIsSelectPriorityModalOpen(true)}
+                        className="text-[11px] font-bold text-amber-300 hover:text-white flex items-center gap-1 transition-colors cursor-pointer"
+                      >
+                        <Edit3 size={11} />
+                        <span>Ganti Prioritas</span>
+                      </button>
+                      <span className="text-amber-500/40 text-xs">&bull;</span>
+                      <button
+                        type="button"
+                        onClick={() => removeDivisionPriority(currentDiv.id)}
+                        className="text-[11px] font-bold text-rose-400 hover:text-rose-300 flex items-center gap-1 transition-colors cursor-pointer"
+                      >
+                        <Trash2 size={11} />
+                        <span>Hapus</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             ) : (
               <div className="bg-slate-900/50 p-4 rounded-2xl border border-dashed border-slate-700/60 flex flex-col justify-between">
@@ -259,13 +289,14 @@ export const DivisionOverview: React.FC<DivisionOverviewProps> = ({
                     Belum ada fokus prioritas khusus yang disematkan untuk pekan ini.
                   </p>
                 </div>
-                {isSuperAdmin && (
+                {(isSuperAdmin || canManageDivision(currentDiv.id)) && (
                   <button
-                    onClick={() => openPriorityModal('agenda')}
-                    className="mt-2 text-[11px] font-bold text-brand-300 hover:text-white flex items-center gap-1 transition-colors cursor-pointer"
+                    type="button"
+                    onClick={() => setIsSelectPriorityModalOpen(true)}
+                    className="mt-2.5 text-[11px] font-bold text-amber-300 hover:text-amber-200 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer shadow-xs w-fit"
                   >
-                    <Plus size={12} />
-                    <span>Tetapkan Prioritas</span>
+                    <Award size={13} className="text-amber-400" />
+                    <span>Pilih Prioritas dari Agenda</span>
                   </button>
                 )}
               </div>
@@ -378,12 +409,17 @@ export const DivisionOverview: React.FC<DivisionOverviewProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
             {filteredAgendas.map((agenda) => {
               const isCompleted = agenda.status === 'completed';
+              const isThisPriority = divisionPriorities.some(
+                (p) => p.sourceAgendaId === agenda.id || p.title === agenda.title
+              );
 
               return (
                 <div
                   key={agenda.id}
                   className={`p-5 rounded-2xl border transition-all duration-200 flex flex-col justify-between ${
-                    isCompleted
+                    isThisPriority
+                      ? 'bg-gradient-to-b from-amber-950/20 to-[#0e1626]/90 border-amber-500/50 shadow-soft ring-1 ring-amber-500/30'
+                      : isCompleted
                       ? 'bg-emerald-950/20 border-emerald-800/40 shadow-xs'
                       : 'bg-[#0e1626]/90 border-slate-800 hover:bg-[#111c33] hover:border-slate-700 hover:shadow-soft'
                   }`}
@@ -401,11 +437,47 @@ export const DivisionOverview: React.FC<DivisionOverviewProps> = ({
                             {agenda.time}
                           </span>
                         )}
+                        {isThisPriority && (
+                          <span className="flex items-center gap-1 text-[10px] font-black uppercase px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-xs">
+                            <Award size={11} className="text-amber-400" />
+                            <span>Prioritas</span>
+                          </span>
+                        )}
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5">
                         <PriorityBadge priority={agenda.priority} size="sm" />
                         <StatusBadge status={agenda.status} size="sm" />
+
+                        {/* Quick Priority Toggle (Superadmin or Division) */}
+                        {canManageAgenda(agenda) && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              isThisPriority
+                                ? removeDivisionPriority(currentDiv.id)
+                                : setDivisionPriorityFromAgenda(agenda)
+                            }
+                            title={
+                              isThisPriority
+                                ? 'Batalkan status prioritas pekan ini'
+                                : 'Jadikan agenda ini sebagai Prioritas Pekan Ini'
+                            }
+                            className={`px-2 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                              isThisPriority
+                                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-rose-500/20 hover:text-rose-300 hover:border-rose-500/30'
+                                : 'text-slate-400 hover:text-amber-300 hover:bg-amber-500/15 border border-transparent hover:border-amber-500/30'
+                            }`}
+                          >
+                            <Star
+                              size={13}
+                              className={isThisPriority ? 'fill-amber-400 text-amber-400' : ''}
+                            />
+                            <span className="text-[11px] hidden xl:inline">
+                              {isThisPriority ? 'Prioritas' : 'Pilih Prioritas'}
+                            </span>
+                          </button>
+                        )}
 
                         {/* Edit Button (Superadmin or assigned Division) */}
                         {canManageAgenda(agenda) && (
@@ -472,6 +544,14 @@ export const DivisionOverview: React.FC<DivisionOverviewProps> = ({
         <EditDivisionModal
           isOpen={isEditDivisionModalOpen}
           onClose={() => setIsEditDivisionModalOpen(false)}
+          division={currentDiv}
+        />
+      )}
+
+      {isSelectPriorityModalOpen && (
+        <SelectDivisionPriorityModal
+          isOpen={isSelectPriorityModalOpen}
+          onClose={() => setIsSelectPriorityModalOpen(false)}
           division={currentDiv}
         />
       )}
