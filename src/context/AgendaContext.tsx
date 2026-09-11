@@ -97,7 +97,6 @@ interface AgendaContextType {
   weeklyStats: WeeklyStats;
   todayAgendas: AgendaItem[];
   getDivisionsForActiveWeek: () => Division[];
-  dayAgendaCounts: { day: string; fullDay: string; date: string; count: number }[];
 
   // Priorities management
   priorities: PriorityItem[];
@@ -752,27 +751,6 @@ export const AgendaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return activeWeekAgendas.filter((a) => a.day === todayName);
   }, [activeWeekAgendas]);
 
-  // Day Agenda Distribution (MON - SUN)
-  const dayAgendaCounts = useMemo(() => {
-    const days = [
-      { day: 'MON', fullDay: 'Senin', date: '7 Sep' },
-      { day: 'TUE', fullDay: 'Selasa', date: '8 Sep' },
-      { day: 'WED', fullDay: 'Rabu', date: '9 Sep' },
-      { day: 'THU', fullDay: 'Kamis', date: '10 Sep' },
-      { day: 'FRI', fullDay: 'Jumat', date: '11 Sep' },
-      { day: 'SAT', fullDay: 'Sabtu', date: '12 Sep' },
-      { day: 'SUN', fullDay: 'Minggu', date: '13 Sep' },
-    ];
-
-    return days.map((d) => {
-      const count = activeWeekAgendas.filter((a) => a.day === d.fullDay).length;
-      return {
-        ...d,
-        count,
-      };
-    });
-  }, [activeWeekAgendas]);
-
   const fullDivisions = useMemo(() => {
     return getDivisionsForActiveWeek();
   }, [getDivisionsForActiveWeek]);
@@ -812,7 +790,6 @@ export const AgendaProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         weeklyStats,
         todayAgendas,
         getDivisionsForActiveWeek,
-        dayAgendaCounts,
         priorities,
         activePriorities,
         addPriorityFromAgenda,

@@ -3,7 +3,6 @@ import { StatCard } from '../components/dashboard/StatCard';
 import { DivisionProgress } from '../components/dashboard/DivisionProgress';
 import { TodayAgendaTimeline } from '../components/dashboard/TodayAgendaTimeline';
 import { PriorityList } from '../components/dashboard/PriorityList';
-import { WeeklyTimeline } from '../components/dashboard/WeeklyTimeline';
 import {
   Layers,
   CheckCircle2,
@@ -130,9 +129,6 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         />
         <PriorityList />
       </div>
-
-      {/* Weekly Timeline: MON - SAT agenda distribution */}
-      <WeeklyTimeline />
     </div>
   );
 };
